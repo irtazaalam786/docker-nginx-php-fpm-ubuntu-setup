@@ -1,0 +1,58 @@
+version: '3.9'
+
+services:
+  nginx:
+    container_name: nginx
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./src:/var/www/html
+    links:
+      - php-fpm
+  php-fpm:
+      build:
+        context: ./php-fpm
+        dockerfile: Dockerfile
+      volumes:
+        - ./src:/var/www/html
+  mysql:
+    image: mysql:8.0
+    container_name: my-mysql-container
+    environment:
+      MYSQL_ROOT_PASSWORD: yourRootPassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+  redis:
+        container_name: redis
+        image: 'bitnami/redis:latest'
+        environment:
+            - ALLOW_EMPTY_PASSWORD=yes
+        ports:
+        - 6379:6379
+        expose:
+        - "6379"
+        volumes:
+        - cache:/bitnami/redis/data
+  rabbitmq:
+    image: "rabbitmq:3-management"
+    container_name: rabbitmq-container
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=admin
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+
+volumes:
+  mysql_data:
+  cache:
+  rabbitmq-data:
+      
